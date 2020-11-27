@@ -1,143 +1,130 @@
 package app.ui;
 
-import app.base.AbstractHeavyLongRangeWeapon;
-import app.exceptions.ErrorMessage;
+import app.exceptions.InvalidCommandException;
+import app.exceptions.ModelNotFoundException;
+import app.model.base.AbstractHeavyLongRangeWeapon;
 import app.service.WeaponsService;
+import app.util.WeaponsCache;
 import app.util.WeaponsCreator;
-import app.util.WeaponsDataReader;
 import app.util.WeaponsDataWriter;
-import app.util.WeaponsMapper;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class CommandsProcessor {
 
+    private static Scanner scanner = new Scanner(System.in);
 
-    private static AbstractHeavyLongRangeWeapon[] weapons;
-    private static Scanner scanner;
 
-    static {
-        try {
-            weapons = WeaponsMapper.map(WeaponsDataReader.readLines());
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static void processMainCommands(String command) throws InvalidCommandException, NumberFormatException {
+
+        if (!command.matches("[0-9]")) {
+            throw new InvalidCommandException(command);
         }
+        int commandNumber = Integer.parseInt(command);
 
-        scanner = new Scanner(System.in);
-    }
-
-    public static void processMainCommands(String command) throws IOException {
-        command = command.trim();
-        if (!command.equals("1") && weapons.length == 0){
+        if (!(commandNumber > 0 && commandNumber < 7)) {
+            throw new InvalidCommandException(command);
+        }
+        if (WeaponsCache.getAllCache().length == 0 && commandNumber != 1) {
             System.err.println("At first create weapons");
             return;
         }
 
-        if (command.matches("[0-9]")) {
-            int commandNumber = Integer.parseInt(command);
-            switch (commandNumber) {
-                case 1:
-                    Templates.printWeaponTypeMenu();
+        switch (commandNumber) {
+            case 1:
+                Templates.printWeaponTypeMenu();
+                int typeNumber = Integer.parseInt(scanner.nextLine());
+                processWeaponsCreation(typeNumber);
+                break;
+            case 2:
+                WeaponsService.printAllWeapons(WeaponsCache.getAllCache());
+                break;
+            case 3:
+                System.out.println("Enter distance for calculating");
+                double distance = scanner.nextDouble();
+                WeaponsService.printAllEffectiveWeaponsFor(distance, WeaponsCache.getAllCache());
+                break;
+            case 4:
+                WeaponsService.printAllUpgradableWeapons(WeaponsCache.getAllCache());
+                break;
+            case 5:
+                WeaponsService.printAllSuitableWeapons(WeaponsCache.getAllCache());
+                break;
+            default:
+                throw new InvalidCommandException(command);
+        }
 
-                    int typeNumber = scanner.nextInt();
-                    switch (typeNumber) {
-                        case 1:
-                            WeaponsDataWriter.saveWeapon(WeaponsCreator.createHowitzer());
-                            break;
-                        case 2:
-                            WeaponsDataWriter.saveWeapon(WeaponsCreator.createAutomaticHowitzer());
-                            break;
-                        case 3:
-                            WeaponsDataWriter.saveWeapon(WeaponsCreator.createMRL());
-                            break;
-                        case 4:
-                            WeaponsDataWriter.saveWeapon(WeaponsCreator.createLongRangeBallisticMissile());
-                            break;
-                        case 5:
-                            WeaponsDataWriter.saveWeapon(WeaponsCreator.createAirDefenceSystem());
-                            break;
-                        case 6:
-                            return;
-                        default:
-                            ErrorMessage.printInvalidCommandErrorMessage(typeNumber);
-                    }
+    }
+
+    private static void processWeaponsCreation(int typeNumber) throws InvalidCommandException {
+        try {
+            switch (typeNumber) {
+                case 1:
+                    WeaponsDataWriter.saveWeapon(WeaponsCreator.createHowitzer());
                     break;
                 case 2:
-                    for (AbstractHeavyLongRangeWeapon weapon : weapons) {
-                        WeaponsService.printCharacteristics(weapon);
-                    }
+                    WeaponsDataWriter.saveWeapon(WeaponsCreator.createAutomaticHowitzer());
                     break;
                 case 3:
-                    System.out.println("Enter distance for calculating");
-                    double distance = scanner.nextDouble();
-                    for (AbstractHeavyLongRangeWeapon weapon: weapons){
-                        if (weapon.isEffective(distance)){
-                            WeaponsService.printCharacteristics(weapon);
-                        }
-                    }
+                    WeaponsDataWriter.saveWeapon(WeaponsCreator.createMRL());
                     break;
                 case 4:
-                    for (AbstractHeavyLongRangeWeapon weapon: weapons){
-                       if (weapon.isSubjectOfUpdate()){
-                           WeaponsService.printCharacteristics(weapon);
-                       }
-                    }
+                    WeaponsDataWriter.saveWeapon(WeaponsCreator.createLongRangeBallisticMissile());
                     break;
                 case 5:
-                    for (AbstractHeavyLongRangeWeapon weapon: weapons){
-                        if (!weapon.notSuitable()){
-                            WeaponsService.printCharacteristics(weapon);
-                        }
-                    }
+                    WeaponsDataWriter.saveWeapon(WeaponsCreator.createAirDefenceSystem());
                     break;
+                case 6:
+                    return;
                 default:
-                    ErrorMessage.printInvalidCommandErrorMessage(commandNumber);
+                    throw new InvalidCommandException(String.valueOf(typeNumber));
+
             }
-        } else {
-            ErrorMessage.printInvalidCommandErrorMessage(command);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
     }
 
-    public static void processSubCommands(String command) {
-        command = command.trim();
-        if (command.matches("[0-9]")) {
-            int commandNumber = Integer.parseInt(command);
-            String model;
-            AbstractHeavyLongRangeWeapon weapon;
+
+    public static void processSubCommands(String command) throws InvalidCommandException, NumberFormatException {
+        int commandNumber = Integer.parseInt(command.trim());
+        if (!(commandNumber > 0 && commandNumber < 4)) {
+            throw new InvalidCommandException(String.valueOf(commandNumber));
+        }
+        String model;
+        AbstractHeavyLongRangeWeapon weapon;
+        try {
             switch (commandNumber) {
                 case 1:
                     System.out.println("Enter model name");
                     model = scanner.nextLine();
-                     weapon = WeaponsService.searchWeapon(weapons, model);
-                    if (weapon != null)
-                        WeaponsService.printCharacteristics(weapon);
+                    weapon = WeaponsService.searchWeapon(WeaponsCache.getAllCache(), model);
+                    WeaponsService.printCharacteristics(weapon);
                     break;
                 case 2:
                     System.out.println("Enter model name");
                     model = scanner.nextLine();
-                    weapon = WeaponsService.searchWeapon(weapons, model);
-                    if (weapon != null)
-                        System.out.println(WeaponsService.getExpirationDate(weapon));
+                    weapon = WeaponsService.searchWeapon(WeaponsCache.getAllCache(), model);
+                    System.out.print("\u001B[35m");
+                    System.out.println(WeaponsService.getExpirationDate(weapon));
                     break;
                 case 3:
                     System.out.println("Enter model name");
                     model = scanner.nextLine();
-                    weapon = WeaponsService.searchWeapon(weapons, model);
-
-                    if (weapon != null) {
-                        System.out.println("Enter front length");
-                        double frontLength = scanner.nextDouble();
-                        System.out.println("Enter target depth");
-                        double targetDepth = scanner.nextDouble();
-                        System.out.println("Count of defenders : " + WeaponsService.getCountOfDefenders(weapon,frontLength,targetDepth));
-                    }
+                    weapon = WeaponsService.searchWeapon(WeaponsCache.getAllCache(), model);
+                    System.out.println("Enter front length (front length must be less than 1.000.000.000)");
+                    double frontLength = Double.parseDouble(scanner.nextLine());
+                    System.out.println("Enter target depth");
+                    double targetDepth = Double.parseDouble(scanner.nextLine());
+                    System.out.print("\u001B[35m");
+                    System.out.println("Count of defenders : " + WeaponsService.getCountOfDefenders(weapon, frontLength, targetDepth));
                     break;
                 default:
-                    ErrorMessage.printInvalidCommandErrorMessage(commandNumber);
+                    throw new InvalidCommandException(command);
             }
-        } else {
-            ErrorMessage.printInvalidCommandErrorMessage(command);
+        } catch (ModelNotFoundException e) {
+            e.printStackTrace();
         }
+
     }
 }

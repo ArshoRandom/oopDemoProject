@@ -1,4 +1,4 @@
-package app.base;
+package app.model.base;
 
 public interface HeavyLongRangeWeapon {
 

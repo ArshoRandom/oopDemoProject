@@ -1,4 +1,6 @@
-package app.artillery;
+package app.model.artillery;
+
+import app.exceptions.InvalidPropertyException;
 
 public class AutomotiveHowitzer extends Howitzer {
 
@@ -13,10 +15,8 @@ public class AutomotiveHowitzer extends Howitzer {
     }
 
     public void setPlatformType(String platformType) {
-        if (platformType != null && platformType.length() > 1)
-            this.platformType = platformType;
-        else
-            System.out.println("Invalid platform type : " + platformType);
+        InvalidPropertyException.check(!(platformType != null && platformType.length() > 1), "platform type " + platformType);
+        this.platformType = platformType;
     }
 
     @Override

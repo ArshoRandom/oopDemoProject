@@ -1,10 +1,10 @@
 package app.util;
 
-import app.rocketweapons.airdefence.AirDefenceRocketSystem;
-import app.artillery.AutomotiveHowitzer;
-import app.artillery.Howitzer;
-import app.rocketweapons.LongRangeBallisticMissile;
-import app.rocketweapons.MultipleRocketLauncher;
+import app.model.artillery.AutomotiveHowitzer;
+import app.model.artillery.Howitzer;
+import app.model.rocketweapons.LongRangeBallisticMissile;
+import app.model.rocketweapons.MultipleRocketLauncher;
+import app.model.rocketweapons.airdefence.AirDefenceRocketSystem;
 
 import java.util.Scanner;
 
@@ -26,7 +26,7 @@ public class WeaponsCreator {
     private static double detectionRadius;
 
 
-    public static Howitzer createHowitzer() {
+    public static Howitzer createHowitzer() throws NumberFormatException {
         FieldsFiller.fillHowitzer();
         Howitzer howitzer = new Howitzer();
         howitzer.setCountry(country);
@@ -40,7 +40,7 @@ public class WeaponsCreator {
         return howitzer;
     }
 
-    public static AutomotiveHowitzer createAutomaticHowitzer() {
+    public static AutomotiveHowitzer createAutomaticHowitzer() throws NumberFormatException {
         FieldsFiller.fillAutomaticHowitzer();
         AutomotiveHowitzer automotiveHowitzer = new AutomotiveHowitzer();
         automotiveHowitzer.setModel(model);
@@ -55,7 +55,7 @@ public class WeaponsCreator {
         return automotiveHowitzer;
     }
 
-    public static LongRangeBallisticMissile createLongRangeBallisticMissile() {
+    public static LongRangeBallisticMissile createLongRangeBallisticMissile() throws NumberFormatException {
         FieldsFiller.fillLongRangeRocketWeapon();
         LongRangeBallisticMissile rocketLongRangeWeapon = new LongRangeBallisticMissile();
         rocketLongRangeWeapon.setModel(model);
@@ -69,7 +69,7 @@ public class WeaponsCreator {
         return rocketLongRangeWeapon;
     }
 
-    public static MultipleRocketLauncher createMRL() {
+    public static MultipleRocketLauncher createMRL() throws NumberFormatException {
         FieldsFiller.fillMRL();
         MultipleRocketLauncher mrl = new MultipleRocketLauncher();
         mrl.setCountry(country);
@@ -84,7 +84,7 @@ public class WeaponsCreator {
         return mrl;
     }
 
-    public static AirDefenceRocketSystem createAirDefenceSystem() {
+    public static AirDefenceRocketSystem createAirDefenceSystem() throws NumberFormatException {
         FieldsFiller.fillAirDefenceSystem();
         AirDefenceRocketSystem airDefenceRocketSystem = new AirDefenceRocketSystem();
         airDefenceRocketSystem.setCountry(country);
@@ -104,54 +104,62 @@ public class WeaponsCreator {
 
         private static Scanner scanner = new Scanner(System.in);
 
-        private static void fillBaseCharacteristics() {
+        private static void fillBaseCharacteristics() throws NumberFormatException {
             System.out.println("Enter model");
             WeaponsCreator.model = scanner.nextLine();
             System.out.println("Enter country");
             WeaponsCreator.country = scanner.nextLine();
-            System.out.println("Enter distance");
-            WeaponsCreator.distance = scanner.nextDouble();
-            System.out.println("Enter production year");
-            WeaponsCreator.year = scanner.nextInt();
+            System.out.println("Enter distance\n" +
+                    "(Howitzers max - 15_000, min - 3000)\n" +
+                    "(MRL max - 120_000, min - 10_000)\n" +
+                    "(Ballistic Missile max - 700_000, min - 25_000)\n" +
+                    "(Air defence system max - 300_000, min - 10_000)");
+            WeaponsCreator.distance = Double.parseDouble(scanner.nextLine().trim());
+            System.out.println("Enter production year (min - 1950, max - current year)");
+            WeaponsCreator.year = Integer.parseInt(scanner.nextLine().trim());
             System.out.println("Enter production month");
-            WeaponsCreator.month = scanner.nextInt();
+            WeaponsCreator.month = Integer.parseInt(scanner.nextLine().trim());
             System.out.println("Enter production day");
-            WeaponsCreator.day = scanner.nextInt();
-            System.out.println("Enter caliber");
-            WeaponsCreator.caliber = scanner.nextDouble();
+            WeaponsCreator.day = Integer.parseInt(scanner.nextLine().trim());
+            System.out.println("Enter caliber\n" +
+                    "(Howitzers max - 150, min - 120)\n" +
+                    "(MRL max - 350, min - 120)\n" +
+                    "(Ballistic Missile max - 500, min - 300)\n" +
+                    "(Air defence system max - 400, min - 200)");
+            WeaponsCreator.caliber = Double.parseDouble(scanner.nextLine().trim());
             System.out.println("Enter personal count");
-            WeaponsCreator.personalCount = scanner.nextInt();
+            WeaponsCreator.personalCount = Integer.parseInt(scanner.nextLine().trim());
         }
 
-        private static void fillHowitzer() {
+        private static void fillHowitzer() throws NumberFormatException {
             fillBaseCharacteristics();
             System.out.println("Enter true if howitzer is flat, else enter false");
-            WeaponsCreator.isFlat = scanner.nextBoolean();
+            WeaponsCreator.isFlat = Boolean.parseBoolean(scanner.nextLine().trim());
         }
 
-        private static void fillAutomaticHowitzer() {
+        private static void fillAutomaticHowitzer() throws NumberFormatException {
             fillHowitzer();
             System.out.println("Enter platform model");
             WeaponsCreator.platformType = scanner.nextLine();
         }
 
-        private static void fillLongRangeRocketWeapon() {
+        private static void fillLongRangeRocketWeapon() throws NumberFormatException {
             fillBaseCharacteristics();
             System.out.println("Enter rocket counts");
-            WeaponsCreator.rocketCount = scanner.nextInt();
+            WeaponsCreator.rocketCount = Integer.parseInt(scanner.nextLine().trim());
         }
 
-        private static void fillMRL() {
+        private static void fillMRL() throws NumberFormatException {
             fillLongRangeRocketWeapon();
             System.out.println("Enter rate of fire (integer value)");
-            WeaponsCreator.rateOfFire = scanner.nextInt();
+            WeaponsCreator.rateOfFire = Integer.parseInt(scanner.nextLine().trim());
         }
 
 
-        private static void fillAirDefenceSystem() {
+        private static void fillAirDefenceSystem() throws NumberFormatException {
             fillLongRangeRocketWeapon();
-            System.out.println("Enter detection radius");
-            WeaponsCreator.detectionRadius = scanner.nextDouble();
+            System.out.println("Enter detection radius (max - 400_000, min - 10_000)");
+            WeaponsCreator.detectionRadius = Double.parseDouble(scanner.nextLine().trim());
         }
 
         private static void clean() {

@@ -1,4 +1,4 @@
-package app.artillery;
+package app.model.artillery;
 
 public class Howitzer extends Artillery {
 

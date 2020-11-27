@@ -1,6 +1,11 @@
 package app.ui;
 
-import app.exceptions.ErrorMessage;
+import app.exceptions.InvalidCommandException;
+import app.exceptions.InvalidDataFormatException;
+import app.model.base.AbstractHeavyLongRangeWeapon;
+import app.util.WeaponsCache;
+import app.util.WeaponsDataReader;
+import app.util.WeaponsMapper;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -8,16 +13,7 @@ import java.util.Scanner;
 public class UI {
 
 
-    private static void changeUIColorTo(String colorNumber){
-        colorNumber = colorNumber.trim();
-        if (colorNumber.matches("[1-7]")){
-            System.out.print("\u001B[3"+colorNumber+"m");
-        }else {
-            ErrorMessage.printInvalidCommandErrorMessage(colorNumber);
-        }
-    }
-
-    public static void start() throws IOException {
+    public static void start() {
         System.out.println(Templates.getWelcomeTemplate());
 
         Scanner scanner = new Scanner(System.in);
@@ -33,10 +29,23 @@ public class UI {
             System.out.println(menuTemplate);
             String command = scanner.nextLine();
 
-            if (command.startsWith("color")){
-                changeUIColorTo(command.split(" ")[1]);
+            if (command.matches("import (?![ ]).+")) {
+                String path = command.split(" ")[1];
+                try {
+                    AbstractHeavyLongRangeWeapon[] weapons = WeaponsMapper.map(WeaponsDataReader.readLines(path));
+                    for (AbstractHeavyLongRangeWeapon weapon : weapons) {
+                        WeaponsCache.add(weapon);
+                    }
+                } catch (InvalidDataFormatException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    System.err.println("Invalid path : " + path);
+                    continue;
+                }
+                System.out.println("Successfully imported");
                 continue;
             }
+
             switch (command) {
                 case "exit":
                     System.out.println("Bye!!!");
@@ -50,16 +59,20 @@ public class UI {
                     if (turnOnSecondaryMenu) {
                         menuTemplate = Templates.getMainMenuTemplate();
                         turnOnSecondaryMenu = false;
+                        continue outer;
                     }
-                    continue outer;
+
             }
 
-            if (!turnOnSecondaryMenu) {
-                CommandsProcessor.processMainCommands(command);
-            } else {
-                CommandsProcessor.processSubCommands(command);
+            try {
+                if (!turnOnSecondaryMenu) {
+                    CommandsProcessor.processMainCommands(command);
+                } else {
+                    CommandsProcessor.processSubCommands(command);
+                }
+            } catch (InvalidCommandException | NumberFormatException e) {
+                e.printStackTrace();
             }
-
         }
     }
 }

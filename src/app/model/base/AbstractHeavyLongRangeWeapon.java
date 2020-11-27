@@ -1,4 +1,6 @@
-package app.base;
+package app.model.base;
+
+import app.exceptions.InvalidPropertyException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,10 +34,10 @@ public abstract class AbstractHeavyLongRangeWeapon implements HeavyLongRangeWeap
     public void setDateOfProduction(int year, int month, int day) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
         String currentYear = sdf.format(new Date());
-        if (year >= 1950 && year <= Integer.parseInt(currentYear))
-            this.dateOfProduction = new GregorianCalendar(year,month-1,day).getTime();
-        else
-            System.out.println("Invalid year : " + dateOfProduction);
+        InvalidPropertyException.check(!(year >= 1950 && year <= Integer.parseInt(currentYear)), "year " + year);
+        InvalidPropertyException.check(!(month >= 0 && month <= 11), "month " + month);
+        InvalidPropertyException.check(!(day >= 1 && day <= 31), "day " + day);
+        this.dateOfProduction = new GregorianCalendar(year, month - 1, day).getTime();
     }
 
     public String getModel() {
@@ -43,10 +45,9 @@ public abstract class AbstractHeavyLongRangeWeapon implements HeavyLongRangeWeap
     }
 
     public void setModel(String model) {
-        if (model != null && model.length() > 0)
-            this.model = model;
-        else
-            System.out.println("Invalid model : " + model);
+        InvalidPropertyException.check(!(model != null && model.length() > 0), model);
+        this.model = model;
+
     }
 
     public String getCountry() {
@@ -54,10 +55,8 @@ public abstract class AbstractHeavyLongRangeWeapon implements HeavyLongRangeWeap
     }
 
     public void setCountry(String country) {
-        if (country != null && country.matches("[a-zA-Z]+"))
-            this.country = country;
-        else
-            System.out.println("invalid country : " + country);
+        InvalidPropertyException.check(!(country != null && country.matches("[a-zA-Z]+")), "country " + country);
+        this.country = country;
     }
 
     public double getCaliber() {
@@ -65,10 +64,7 @@ public abstract class AbstractHeavyLongRangeWeapon implements HeavyLongRangeWeap
     }
 
     public void setCaliber(double caliber) {
-        if (caliber > 60 && caliber < 800)
-            this.caliber = caliber;
-        else
-            System.out.println("Invalid caliber : " + caliber);
+        this.caliber = caliber;
     }
 
     public double getDistance() {
@@ -76,10 +72,7 @@ public abstract class AbstractHeavyLongRangeWeapon implements HeavyLongRangeWeap
     }
 
     public void setDistance(double distance) {
-        if (distance >= 3000 && distance <= 700_000)
-            this.distance = distance;
-        else
-            System.out.println("Invalid distance : " + distance);
+        this.distance = distance;
     }
 
     public int getPersonnelCount() {
@@ -87,10 +80,8 @@ public abstract class AbstractHeavyLongRangeWeapon implements HeavyLongRangeWeap
     }
 
     public void setPersonnelCount(int personnelCount) {
-        if (personnelCount > 0 && personnelCount <= 30)
-            this.personnelCount = personnelCount;
-        else
-            System.out.println("Invalid personal count : " + personnelCount);
+        InvalidPropertyException.check(!(personnelCount > 0 && personnelCount <= 30), "personal count " + personnelCount);
+        this.personnelCount = personnelCount;
     }
 
     @Override
@@ -100,19 +91,19 @@ public abstract class AbstractHeavyLongRangeWeapon implements HeavyLongRangeWeap
 
     @Override
     public boolean isSubjectOfUpdate() {
-        return this.dateOfProduction.before(new GregorianCalendar(1990,GregorianCalendar.JANUARY,1).getTime())
-                && this.dateOfProduction.after(new GregorianCalendar(1980,GregorianCalendar.JANUARY,1).getTime());
+        return this.dateOfProduction.before(new GregorianCalendar(1990, GregorianCalendar.JANUARY, 1).getTime())
+                && this.dateOfProduction.after(new GregorianCalendar(1980, GregorianCalendar.JANUARY, 1).getTime());
     }
 
     @Override
     public boolean notSuitable() {
-        return this.dateOfProduction.before(new GregorianCalendar(1980,GregorianCalendar.JANUARY,1).getTime());
+        return this.dateOfProduction.before(new GregorianCalendar(1980, GregorianCalendar.JANUARY, 1).getTime());
     }
 
     @Override
     public String toString() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String simpleDate = dateFormat.format(getDateOfProduction());
-        return String.format("%s,%s,%f,%f,%d,%s",getCountry(),getModel(),getDistance(),getCaliber(),getPersonnelCount(),simpleDate);
+        return String.format("%s,%s,%f,%f,%d,%s", getCountry(), getModel(), getDistance(), getCaliber(), getPersonnelCount(), simpleDate);
     }
 }

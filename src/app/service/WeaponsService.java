@@ -1,10 +1,10 @@
 package app.service;
 
-import app.exceptions.ErrorMessage;
-import app.rocketweapons.airdefence.AirDefenceRocketSystem;
-import app.artillery.Artillery;
-import app.artillery.AutomotiveHowitzer;
-import app.base.AbstractHeavyLongRangeWeapon;
+import app.exceptions.ModelNotFoundException;
+import app.model.artillery.Artillery;
+import app.model.artillery.AutomotiveHowitzer;
+import app.model.base.AbstractHeavyLongRangeWeapon;
+import app.model.rocketweapons.airdefence.AirDefenceRocketSystem;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -13,9 +13,9 @@ import java.util.GregorianCalendar;
 public class WeaponsService {
 
 
-
     public static void printCharacteristics(AbstractHeavyLongRangeWeapon weapon) {
         String model = weapon.getModel();
+        System.out.print("\u001B[35m");
         System.out.println("\n-+-+-+-+-+-+ " + model + " -+-+-+-+-+-+");
         System.out.printf("Model : %s\n", model);
         System.out.printf("Country : %s\n", weapon.getCountry());
@@ -33,20 +33,61 @@ public class WeaponsService {
 
 
     public static int getCountOfDefenders(AbstractHeavyLongRangeWeapon weapon, double frontLength, double targetDepth) {
-        double weaponDistance = weapon.getDistance();
-        if (weapon.isEffective(targetDepth)) {
-            int unitCounts = (int) (frontLength / weapon.getDistance() + 1);
-            if (weapon.getCaliber() < 300)
-                return 3 * unitCounts;
-            else if (weapon.getCaliber() < 600) {
-                return 2 * unitCounts;
-            } else
-                return unitCounts;
+        if (frontLength <= 1_000_000_000) {
+            if (weapon.isEffective(targetDepth)) {
+                int unitCounts = (int) (frontLength / weapon.getDistance() + 1);
+                if (weapon.getCaliber() < 300)
+                    return 3 * unitCounts;
+                else if (weapon.getCaliber() < 600) {
+                    return 2 * unitCounts;
+                } else
+                    return unitCounts;
+            }
         }
-        System.out.println("Ineffective weapon for distance " + weaponDistance);
         return 0;
     }
 
+
+    public static void printAllWeapons(AbstractHeavyLongRangeWeapon[] weapons) {
+        int count = weapons.length;
+        for (AbstractHeavyLongRangeWeapon weapon : weapons) {
+            printCharacteristics(weapon);
+        }
+        System.out.println("\u001B[32mAll weapons count : " + count);
+    }
+
+    public static void printAllEffectiveWeaponsFor(double distance, AbstractHeavyLongRangeWeapon[] weapons) {
+        int count = 0;
+        for (AbstractHeavyLongRangeWeapon weapon : weapons) {
+            if (weapon.isEffective(distance)) {
+                count++;
+                printCharacteristics(weapon);
+            }
+        }
+        System.out.println("\u001B[32mAll effective weapons count : " + count);
+    }
+
+    public static void printAllUpgradableWeapons(AbstractHeavyLongRangeWeapon[] weapons) {
+        int count = 0;
+        for (AbstractHeavyLongRangeWeapon weapon : weapons) {
+            if (weapon.isSubjectOfUpdate()) {
+                count++;
+                printCharacteristics(weapon);
+            }
+        }
+        System.out.println("\u001B[32mAll upgradable weapons count : " + count);
+    }
+
+    public static void printAllSuitableWeapons(AbstractHeavyLongRangeWeapon[] weapons) {
+        int count = 0;
+        for (AbstractHeavyLongRangeWeapon weapon : weapons) {
+            if (!weapon.notSuitable()) {
+                count++;
+                printCharacteristics(weapon);
+            }
+        }
+        System.out.println("\u001B[32mAll suitable weapons count : " + count);
+    }
 
     public static Date getExpirationDate(AbstractHeavyLongRangeWeapon weapon) {
         Date expDate = new Date();
@@ -60,12 +101,12 @@ public class WeaponsService {
         return expDate;
     }
 
-    public static AbstractHeavyLongRangeWeapon searchWeapon(AbstractHeavyLongRangeWeapon [] weapons, String searchModel){
-        for (AbstractHeavyLongRangeWeapon weapon : weapons){
+    public static AbstractHeavyLongRangeWeapon searchWeapon(AbstractHeavyLongRangeWeapon[] weapons, String searchModel) throws ModelNotFoundException {
+        for (AbstractHeavyLongRangeWeapon weapon : weapons) {
             if (weapon.getModel().equalsIgnoreCase(searchModel))
                 return weapon;
         }
-        ErrorMessage.printNotFoundErrorMessage(searchModel);
-        return null;
+        throw new ModelNotFoundException(searchModel);
+
     }
 }

@@ -1,6 +1,7 @@
-package app.rocketweapons;
+package app.model.rocketweapons;
 
-import app.base.AbstractHeavyLongRangeWeapon;
+import app.exceptions.InvalidPropertyException;
+import app.model.base.AbstractHeavyLongRangeWeapon;
 
 public abstract class RocketLongRangeWeapon extends AbstractHeavyLongRangeWeapon {
 
@@ -15,10 +16,8 @@ public abstract class RocketLongRangeWeapon extends AbstractHeavyLongRangeWeapon
     }
 
     public void setRocketCount(int rocketCount) {
-        if (rocketCount > 0 && rocketCount <= 50)
-            this.rocketCount = rocketCount;
-        else
-            System.out.println("Invalid rockets count : " + rocketCount);
+        InvalidPropertyException.check(!(rocketCount > 0 && rocketCount <= 50), "rockets count " + rocketCount);
+        this.rocketCount = rocketCount;
     }
 
     @Override
