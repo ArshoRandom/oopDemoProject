@@ -5,6 +5,8 @@ import app.model.artillery.Artillery;
 import app.model.artillery.AutomotiveHowitzer;
 import app.model.base.AbstractHeavyLongRangeWeapon;
 import app.model.rocketweapons.airdefence.AirDefenceRocketSystem;
+import app.util.color.Color;
+import app.util.color.ColorChanger;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -15,7 +17,7 @@ public class WeaponsService {
 
     public static void printCharacteristics(AbstractHeavyLongRangeWeapon weapon) {
         String model = weapon.getModel();
-        System.out.print("\u001B[35m");
+        ColorChanger.changeColor(Color.PURPLE);
         System.out.println("\n-+-+-+-+-+-+ " + model + " -+-+-+-+-+-+");
         System.out.printf("Model : %s\n", model);
         System.out.printf("Country : %s\n", weapon.getCountry());
@@ -53,7 +55,8 @@ public class WeaponsService {
         for (AbstractHeavyLongRangeWeapon weapon : weapons) {
             printCharacteristics(weapon);
         }
-        System.out.println("\u001B[32mAll weapons count : " + count);
+        ColorChanger.changeColor(Color.GREEN);
+        System.out.println("All weapons count : " + count);
     }
 
     public static void printAllEffectiveWeaponsFor(double distance, AbstractHeavyLongRangeWeapon[] weapons) {
@@ -64,7 +67,8 @@ public class WeaponsService {
                 printCharacteristics(weapon);
             }
         }
-        System.out.println("\u001B[32mAll effective weapons count : " + count);
+        ColorChanger.changeColor(Color.GREEN);
+        System.out.println("All effective weapons count : " + count);
     }
 
     public static void printAllUpgradableWeapons(AbstractHeavyLongRangeWeapon[] weapons) {
@@ -75,7 +79,8 @@ public class WeaponsService {
                 printCharacteristics(weapon);
             }
         }
-        System.out.println("\u001B[32mAll upgradable weapons count : " + count);
+        ColorChanger.changeColor(Color.GREEN);
+        System.out.println("All upgradable weapons count : " + count);
     }
 
     public static void printAllSuitableWeapons(AbstractHeavyLongRangeWeapon[] weapons) {
@@ -86,7 +91,8 @@ public class WeaponsService {
                 printCharacteristics(weapon);
             }
         }
-        System.out.println("\u001B[32mAll suitable weapons count : " + count);
+        ColorChanger.changeColor(Color.GREEN);
+        System.out.println("All suitable weapons count : " + count);
     }
 
     public static Date getExpirationDate(AbstractHeavyLongRangeWeapon weapon) {

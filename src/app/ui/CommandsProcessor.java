@@ -4,9 +4,9 @@ import app.exceptions.InvalidCommandException;
 import app.exceptions.ModelNotFoundException;
 import app.model.base.AbstractHeavyLongRangeWeapon;
 import app.service.WeaponsService;
-import app.util.WeaponsCache;
-import app.util.WeaponsCreator;
-import app.util.WeaponsDataWriter;
+import app.util.*;
+import app.util.color.Color;
+import app.util.color.ColorChanger;
 
 import java.util.Scanner;
 
@@ -105,7 +105,7 @@ public class CommandsProcessor {
                     System.out.println("Enter model name");
                     model = scanner.nextLine();
                     weapon = WeaponsService.searchWeapon(WeaponsCache.getAllCache(), model);
-                    System.out.print("\u001B[35m");
+                    ColorChanger.changeColor(Color.PURPLE);
                     System.out.println(WeaponsService.getExpirationDate(weapon));
                     break;
                 case 3:
@@ -116,7 +116,7 @@ public class CommandsProcessor {
                     double frontLength = Double.parseDouble(scanner.nextLine());
                     System.out.println("Enter target depth");
                     double targetDepth = Double.parseDouble(scanner.nextLine());
-                    System.out.print("\u001B[35m");
+                    ColorChanger.changeColor(Color.PURPLE);
                     System.out.println("Count of defenders : " + WeaponsService.getCountOfDefenders(weapon, frontLength, targetDepth));
                     break;
                 default:
