@@ -113,6 +113,5 @@ public class WeaponsService {
                 return weapon;
         }
         throw new ModelNotFoundException(searchModel);
-
     }
 }
